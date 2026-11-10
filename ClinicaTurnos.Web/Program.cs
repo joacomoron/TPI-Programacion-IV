@@ -3,12 +3,18 @@ using ClinicaTurnos.Application.Services;
 using ClinicaTurnos.Domain.Interfaces;
 using ClinicaTurnos.Infrastructure.Data;
 using ClinicaTurnos.Infrastructure.Repositories;
+using ClinicaTurnos.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+
+// ---------- Manejo global de errores ----------
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // ---------- Contexto (EF Core + SQL Server) ----------
 builder.Services.AddDbContext<ApplicationContext>(options =>
@@ -31,10 +37,12 @@ builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+app.UseExceptionHandler();
+
+// Documentación de la API: /openapi/v1.json y la interfaz para probarla en /scalar
+// (habilitada también en producción para poder mostrarla deployada en el oral)
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();

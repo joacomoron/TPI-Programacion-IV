@@ -1,4 +1,5 @@
 using ClinicaTurnos.Application.Interfaces;
+using ClinicaTurnos.Application.Models.Medicos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
@@ -12,6 +13,39 @@ namespace ClinicaTurnos.Web.Controllers
         public MedicoController(IMedicoService medicoService)
         {
             _medicoService = medicoService;
+        }
+
+        // GET api/Medico  o  GET api/Medico?especialidad=Cardiología
+        [HttpGet]
+        public async Task<ActionResult<List<MedicoDto>>> GetAll([FromQuery] string? especialidad)
+        {
+            return Ok(await _medicoService.GetAllAsync(especialidad));
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<MedicoDto>> GetById(int id)
+        {
+            return Ok(await _medicoService.GetByIdAsync(id));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<MedicoDto>> Create([FromBody] MedicoRequest request)
+        {
+            var medico = await _medicoService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id = medico.Id }, medico);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<MedicoDto>> Update(int id, [FromBody] MedicoRequest request)
+        {
+            return Ok(await _medicoService.UpdateAsync(id, request));
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _medicoService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

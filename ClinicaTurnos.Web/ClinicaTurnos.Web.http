@@ -1,0 +1,96 @@
+# Archivo para probar la API desde Visual Studio: levantá la API y hacé clic en "Enviar solicitud"
+# arriba de cada request. Corrélos en orden la primera vez (los Id asumen base vacía).
+
+@host = https://localhost:7180
+
+### 1. Crear consultorio
+POST {{host}}/api/Consultorio
+Content-Type: application/json
+
+{
+  "nroConsultorio": 101,
+  "disponibilidad": true
+}
+
+### 2. Crear médico
+POST {{host}}/api/Medico
+Content-Type: application/json
+
+{
+  "nombre": "Laura",
+  "apellido": "Gómez",
+  "dni": "28123456",
+  "matricula": "MP-4521",
+  "especialidad": "Cardiología"
+}
+
+### 3. Crear paciente
+POST {{host}}/api/Paciente
+Content-Type: application/json
+
+{
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "dni": "40123456",
+  "email": "juan.perez@mail.com",
+  "direccion": "San Martín 123, Las Rosas",
+  "obraSocial": "OSDE"
+}
+
+### 4. Médicos por especialidad
+GET {{host}}/api/Medico?especialidad=Cardiología
+
+### 5. Horarios disponibles del médico 1 para una fecha
+GET {{host}}/api/Turno/disponibilidad?medicoId=1&fecha=2026-12-01
+
+### 6. Reservar turno
+POST {{host}}/api/Turno
+Content-Type: application/json
+
+{
+  "fecha": "2026-12-01",
+  "hora": "09:30:00",
+  "pacienteId": 1,
+  "medicoId": 1,
+  "consultorioId": 1
+}
+
+### 7. Reservar el MISMO horario otra vez → tiene que dar 400 (superposición)
+POST {{host}}/api/Turno
+Content-Type: application/json
+
+{
+  "fecha": "2026-12-01",
+  "hora": "09:30:00",
+  "pacienteId": 1,
+  "medicoId": 1,
+  "consultorioId": 1
+}
+
+### 8. Pagar el turno 1
+POST {{host}}/api/Pago
+Content-Type: application/json
+
+{
+  "turnoId": 1,
+  "medioPago": "Tarjeta",
+  "comprobante": "MP-000123"
+}
+
+### 9. Ver el turno (tiene que decir "pagado": true)
+GET {{host}}/api/Turno/1
+
+### 10. Confirmar turno
+PATCH {{host}}/api/Turno/1/confirmar
+
+### 11. Turnos del paciente 1
+GET {{host}}/api/Paciente/1/turnos
+
+### 12. Cancelar turno
+PATCH {{host}}/api/Turno/1/cancelar
+
+### 13. Borrar el médico 1 → tiene que dar 409 (tiene turnos asociados)
+DELETE {{host}}/api/Medico/1
+
+### 14. Turno inexistente → 404
+GET {{host}}/api/Turno/999
