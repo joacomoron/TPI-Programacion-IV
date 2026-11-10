@@ -1,10 +1,12 @@
 using ClinicaTurnos.Application.Interfaces;
 using ClinicaTurnos.Application.Models.Turnos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
 {
     [ApiController]
+    [Authorize] // todo el controller pide token, salvo lo marcado con [AllowAnonymous]
     [Route("api/[controller]")]
     public class TurnoController : ControllerBase
     {
@@ -28,6 +30,7 @@ namespace ClinicaTurnos.Web.Controllers
         }
 
         // GET api/Turno/disponibilidad?medicoId=1&fecha=2026-12-01
+        [AllowAnonymous]
         [HttpGet("disponibilidad")]
         public async Task<ActionResult<List<TimeOnly>>> GetDisponibilidad([FromQuery] int medicoId, [FromQuery] DateOnly fecha)
         {

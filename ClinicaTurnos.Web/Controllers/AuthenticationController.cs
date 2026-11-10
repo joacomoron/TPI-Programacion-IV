@@ -1,5 +1,5 @@
 using ClinicaTurnos.Application.Interfaces;
-using ClinicaTurnos.Application.Models;
+using ClinicaTurnos.Application.Models.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
@@ -15,11 +15,11 @@ namespace ClinicaTurnos.Web.Controllers
             _authenticationService = authenticationService;
         }
 
+        // POST api/Authentication/login → devuelve el JWT para usar en el header Authorization: Bearer {token}
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
         {
-            // No funcional en esta etapa: se implementa con JWT para promoción
-            return StatusCode(StatusCodes.Status501NotImplemented, "Autenticación pendiente de implementación");
+            return Ok(await _authenticationService.LoginAsync(request));
         }
     }
 }

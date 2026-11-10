@@ -21,6 +21,7 @@ namespace ClinicaTurnos.Web.Middleware
             var (status, titulo, detalle) = exception switch
             {
                 NotFoundException => (StatusCodes.Status404NotFound, "Recurso no encontrado", exception.Message),
+                UnauthorizedException => (StatusCodes.Status401Unauthorized, "No autorizado", exception.Message),
                 BusinessRuleException => (StatusCodes.Status400BadRequest, "Regla de negocio no cumplida", exception.Message),
                 // Ej: borrar un médico que tiene turnos (la FK con Restrict lo impide)
                 DbUpdateException => (StatusCodes.Status409Conflict, "Conflicto con datos relacionados",

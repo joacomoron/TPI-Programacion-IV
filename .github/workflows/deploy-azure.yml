@@ -1,0 +1,58 @@
+name: CI/CD - Build y deploy a Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # permite correrlo a mano desde la pestaña Actions
+
+env:
+  AZURE_WEBAPP_NAME: CAMBIAR-POR-NOMBRE-DEL-APP-SERVICE
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bajar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restaurar paquetes
+        run: dotnet restore ClinicaTurnos.slnx
+
+      - name: Compilar
+        run: dotnet build ClinicaTurnos.slnx --configuration Release --no-restore
+
+      - name: Publicar la API
+        run: dotnet publish ClinicaTurnos.Web/ClinicaTurnos.Web.csproj --configuration Release --no-restore --output ./publish
+
+      - name: Guardar el resultado para el job de deploy
+        uses: actions/upload-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.webapp-url }}
+    steps:
+      - name: Bajar el resultado del build
+        uses: actions/download-artifact@v4
+        with:
+          name: api
+          path: ./publish
+
+      - name: Deploy al App Service
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish

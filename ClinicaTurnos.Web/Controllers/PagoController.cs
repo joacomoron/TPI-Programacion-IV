@@ -1,10 +1,12 @@
 using ClinicaTurnos.Application.Interfaces;
 using ClinicaTurnos.Application.Models.Pagos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
 {
     [ApiController]
+    [Authorize] // todo el controller pide token, salvo lo marcado con [AllowAnonymous]
     [Route("api/[controller]")]
     public class PagoController : ControllerBase
     {

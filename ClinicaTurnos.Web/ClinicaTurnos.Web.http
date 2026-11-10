@@ -1,30 +1,10 @@
-# Archivo para probar la API desde Visual Studio: levantá la API y hacé clic en "Enviar solicitud"
-# arriba de cada request. Corrélos en orden la primera vez (los Id asumen base vacía).
+# Probar la API desde Visual Studio: levantá la API y hacé clic en "Enviar solicitud" arriba de cada request.
+# Corrélos EN ORDEN la primera vez (los Id asumen base vacía).
+# Para probar la API deployada, cambiá @host por la URL de Azure.
 
 @host = https://localhost:7180
 
-### 1. Crear consultorio
-POST {{host}}/api/Consultorio
-Content-Type: application/json
-
-{
-  "nroConsultorio": 101,
-  "disponibilidad": true
-}
-
-### 2. Crear médico
-POST {{host}}/api/Medico
-Content-Type: application/json
-
-{
-  "nombre": "Laura",
-  "apellido": "Gómez",
-  "dni": "28123456",
-  "matricula": "MP-4521",
-  "especialidad": "Cardiología"
-}
-
-### 3. Crear paciente
+### 1. Registrar paciente (público, no pide token)
 POST {{host}}/api/Paciente
 Content-Type: application/json
 
@@ -37,14 +17,63 @@ Content-Type: application/json
   "obraSocial": "OSDE"
 }
 
-### 4. Médicos por especialidad
+### 2. Login → guarda el token en "login" para usarlo abajo
+# @name login
+POST {{host}}/api/Authentication/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@mail.com",
+  "dni": "40123456"
+}
+
+### 3. Login con DNI incorrecto → 401
+POST {{host}}/api/Authentication/login
+Content-Type: application/json
+
+{
+  "email": "juan.perez@mail.com",
+  "dni": "99999999"
+}
+
+### 4. Endpoint protegido SIN token → 401
+GET {{host}}/api/Turno
+
+### 5. Crear consultorio (con token)
+POST {{host}}/api/Consultorio
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nroConsultorio": 101,
+  "disponibilidad": true
+}
+
+### 6. Crear médico (con token)
+POST {{host}}/api/Medico
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "nombre": "Laura",
+  "apellido": "Gómez",
+  "dni": "28123456",
+  "matricula": "MP-4521",
+  "especialidad": "Cardiología"
+}
+
+### 7. Médicos por especialidad (público)
 GET {{host}}/api/Medico?especialidad=Cardiología
 
-### 5. Horarios disponibles del médico 1 para una fecha
+### 8. Horarios disponibles (público)
 GET {{host}}/api/Turno/disponibilidad?medicoId=1&fecha=2026-12-01
 
-### 6. Reservar turno
+### 9. Horarios en Navidad → lista vacía (API de feriados)
+GET {{host}}/api/Turno/disponibilidad?medicoId=1&fecha=2026-12-25
+
+### 10. Reservar turno
 POST {{host}}/api/Turno
+Authorization: Bearer {{login.response.body.$.token}}
 Content-Type: application/json
 
 {
@@ -55,8 +84,9 @@ Content-Type: application/json
   "consultorioId": 1
 }
 
-### 7. Reservar el MISMO horario otra vez → tiene que dar 400 (superposición)
+### 11. Reservar el MISMO horario → 400 (superposición)
 POST {{host}}/api/Turno
+Authorization: Bearer {{login.response.body.$.token}}
 Content-Type: application/json
 
 {
@@ -67,8 +97,22 @@ Content-Type: application/json
   "consultorioId": 1
 }
 
-### 8. Pagar el turno 1
+### 12. Reservar en feriado → 400 (API de feriados)
+POST {{host}}/api/Turno
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "fecha": "2026-12-25",
+  "hora": "10:00:00",
+  "pacienteId": 1,
+  "medicoId": 1,
+  "consultorioId": 1
+}
+
+### 13. Pagar el turno 1
 POST {{host}}/api/Pago
+Authorization: Bearer {{login.response.body.$.token}}
 Content-Type: application/json
 
 {
@@ -77,20 +121,26 @@ Content-Type: application/json
   "comprobante": "MP-000123"
 }
 
-### 9. Ver el turno (tiene que decir "pagado": true)
+### 14. Ver el turno ("pagado": true)
 GET {{host}}/api/Turno/1
+Authorization: Bearer {{login.response.body.$.token}}
 
-### 10. Confirmar turno
+### 15. Confirmar turno
 PATCH {{host}}/api/Turno/1/confirmar
+Authorization: Bearer {{login.response.body.$.token}}
 
-### 11. Turnos del paciente 1
+### 16. Turnos del paciente 1
 GET {{host}}/api/Paciente/1/turnos
+Authorization: Bearer {{login.response.body.$.token}}
 
-### 12. Cancelar turno
+### 17. Cancelar turno
 PATCH {{host}}/api/Turno/1/cancelar
+Authorization: Bearer {{login.response.body.$.token}}
 
-### 13. Borrar el médico 1 → tiene que dar 409 (tiene turnos asociados)
+### 18. Borrar el médico 1 → 409 (tiene turnos asociados)
 DELETE {{host}}/api/Medico/1
+Authorization: Bearer {{login.response.body.$.token}}
 
-### 14. Turno inexistente → 404
+### 19. Turno inexistente → 404
 GET {{host}}/api/Turno/999
+Authorization: Bearer {{login.response.body.$.token}}

@@ -1,11 +1,13 @@
 using ClinicaTurnos.Application.Interfaces;
 using ClinicaTurnos.Application.Models.Pacientes;
 using ClinicaTurnos.Application.Models.Turnos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
 {
     [ApiController]
+    [Authorize] // todo el controller pide token, salvo lo marcado con [AllowAnonymous]
     [Route("api/[controller]")]
     public class PacienteController : ControllerBase
     {
@@ -37,6 +39,7 @@ namespace ClinicaTurnos.Web.Controllers
             return Ok(await _turnoService.GetByPacienteAsync(id));
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<PacienteDto>> Create([FromBody] PacienteRequest request)
         {

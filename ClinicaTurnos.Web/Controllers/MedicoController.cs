@@ -1,10 +1,12 @@
 using ClinicaTurnos.Application.Interfaces;
 using ClinicaTurnos.Application.Models.Medicos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClinicaTurnos.Web.Controllers
 {
     [ApiController]
+    [Authorize] // todo el controller pide token, salvo lo marcado con [AllowAnonymous]
     [Route("api/[controller]")]
     public class MedicoController : ControllerBase
     {
@@ -16,12 +18,14 @@ namespace ClinicaTurnos.Web.Controllers
         }
 
         // GET api/Medico  o  GET api/Medico?especialidad=Cardiología
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<List<MedicoDto>>> GetAll([FromQuery] string? especialidad)
         {
             return Ok(await _medicoService.GetAllAsync(especialidad));
         }
 
+        [AllowAnonymous]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<MedicoDto>> GetById(int id)
         {

@@ -16,17 +16,20 @@ namespace ClinicaTurnos.Application.Services
         private readonly IPacienteRepository _pacienteRepository;
         private readonly IMedicoRepository _medicoRepository;
         private readonly IConsultorioRepository _consultorioRepository;
+        private readonly IFeriadoService _feriadoService;
 
         public TurnoService(
             ITurnoRepository turnoRepository,
             IPacienteRepository pacienteRepository,
             IMedicoRepository medicoRepository,
-            IConsultorioRepository consultorioRepository)
+            IConsultorioRepository consultorioRepository,
+            IFeriadoService feriadoService)
         {
             _turnoRepository = turnoRepository;
             _pacienteRepository = pacienteRepository;
             _medicoRepository = medicoRepository;
             _consultorioRepository = consultorioRepository;
+            _feriadoService = feriadoService;
         }
 
         public async Task<List<TurnoDto>> GetAllAsync()
@@ -59,6 +62,10 @@ namespace ClinicaTurnos.Application.Services
             if (fecha < Hoy())
                 return new List<TimeOnly>();
 
+            // Servicio externo: si es feriado la clínica no atiende
+            if (await _feriadoService.EsFeriadoAsync(fecha))
+                return new List<TimeOnly>();
+
             var ocupados = (await _turnoRepository.GetActivosByMedicoAndFechaAsync(medicoId, fecha))
                 .Select(t => t.Hora)
                 .ToHashSet();
@@ -89,7 +96,9 @@ namespace ClinicaTurnos.Application.Services
             if (await _turnoRepository.ExisteSuperposicionAsync(request.MedicoId, request.ConsultorioId, request.Fecha, request.Hora))
                 throw new BusinessRuleException("El médico o el consultorio ya tienen un turno en esa fecha y hora");
 
-            // TODO paso 4: validar contra la API de feriados (HttpClientFactory)
+            // Servicio externo (API de feriados vía HttpClientFactory)
+            if (await _feriadoService.EsFeriadoAsync(request.Fecha))
+                throw new BusinessRuleException($"El {request.Fecha:dd/MM/yyyy} es feriado, la clínica no atiende");
 
             var turno = new Turno
             {
