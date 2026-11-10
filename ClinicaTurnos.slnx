@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ClinicaTurnos.Domain/ClinicaTurnos.Domain.csproj" />
+  <Project Path="ClinicaTurnos.Application/ClinicaTurnos.Application.csproj" />
+  <Project Path="ClinicaTurnos.Infrastructure/ClinicaTurnos.Infrastructure.csproj" />
+  <Project Path="ClinicaTurnos.Web/ClinicaTurnos.Web.csproj" />
+</Solution>
