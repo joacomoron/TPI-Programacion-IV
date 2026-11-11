@@ -23,7 +23,12 @@ builder.Services.AddProblemDetails();
 
 // ---------- Contexto (EF Core + SQL Server) ----------
 builder.Services.AddDbContext<ApplicationContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sql => sql.EnableRetryOnFailure(
+            maxRetryCount: 10,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null)));
 
 // ---------- Autenticación JWT ----------
 // En Azure el secret se carga como variable de entorno "Jwt__Secret" (el __ equivale a ":")
