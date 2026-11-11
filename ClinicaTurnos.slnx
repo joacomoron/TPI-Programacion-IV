@@ -1,4 +1,6 @@
 <Solution>
+  <Folder Name="/ClinicaTurnos/" />
+  <Project Path="ClinicaTurnos.Tests/ClinicaTurnos.Tests.csproj" />
   <Project Path="ClinicaTurnos/Application/Application.csproj" />
   <Project Path="ClinicaTurnos/Domain/Domain.csproj" />
   <Project Path="ClinicaTurnos/Infrastructure/Infrastructure.csproj" />
