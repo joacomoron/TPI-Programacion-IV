@@ -14,7 +14,7 @@ Trabajo Práctico Integrador de **Programación IV (UTN)**.
 
 ## URL Pública
 
-📖 **Documentación interactiva y pruebas de la API:** https://TU-URL.azurewebsites.net/scalar
+📖 **Documentación interactiva y pruebas de la API:** [https://clinicaturnos-api-eucdf5hjehgygpe0.westus3-01.azurewebsites.net/scalar]
 
 
 ## 📋 Tabla de contenidos
