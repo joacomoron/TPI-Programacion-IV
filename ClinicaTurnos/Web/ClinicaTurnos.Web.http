@@ -2,8 +2,8 @@
 # Corrélos EN ORDEN la primera vez (los Id asumen base vacía).
 # Para probar la API deployada, cambiá @host por la URL de Azure.
 
-@host = https://localhost:7180
-
+# @host = https://localhost:7180
+@host = https://clinicaturnos-api-eucdf5hjehgygpe0.westus3-01.azurewebsites.net
 ### 1. Registrar paciente (público, no pide token)
 POST {{host}}/api/Paciente
 Content-Type: application/json

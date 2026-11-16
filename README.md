@@ -78,6 +78,8 @@ ClinicaTurnos/
 
 ## 🗂️ Modelo de datos
 
+![Diagrama de clases](docs/diagrama-de-clases.png)
+
 | Entidad | Campos principales |
 |---|---|
 | **Paciente** | Nombre, Apellido, Dni, Email, Dirección, ObraSocial |
